@@ -1,0 +1,34 @@
+---
+interface Props {
+    backgroundColor: string;
+    cards: { href: string, text: string }[]
+}
+import SimpleCard from './SimpleCard.astro';
+const { backgroundColor, cards } = Astro.props;
+---
+<div class="center">
+    <ul>
+        {cards.map((card) => <SimpleCard backgroundColor={backgroundColor} href={card.href} text={card.text}/>)}
+    </ul>
+</div>
+
+<style>
+    .center {
+        display: flex;
+        justify-content: center;
+    }
+    ul {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 0;
+        gap: 20px;
+        width: 50%;
+    }
+
+    @media screen (min-width: 800px) {
+        ul {
+            width: 100%;
+        }
+    }
+</style>

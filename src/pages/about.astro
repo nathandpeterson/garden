@@ -1,0 +1,57 @@
+---
+    import BaseHead from '../components/BaseHead.astro';
+    import Nav from '../components/Nav.astro';
+---
+
+<Nav />
+<BaseHead title='About Silas Flannery'/>
+<section>
+    <div class="image-wrapper">
+        <img 
+            src="https://pub-7869dab1a3b0444296e59c4ed3fb874e.r2.dev/me-457.jpg"
+            alt="Middle aged guy smiling at camera, standing in front of Elliot Bay with a ship and the Seattle skyline"
+        />
+    </div>
+    <p>
+        I live in Seattle with my family and our dog, Cassiopeia.
+        I am interested in the intersection between technology, art, literature, and philosophy.
+        Sometimes I write things.
+    </p>
+   
+</section>
+
+<style>
+    section {
+        padding: 10px;
+       
+        gap: 30px;
+        align-items: center;
+        justify-items: center;
+    }
+  
+    section p {
+        padding: 20px;
+
+    }
+
+    .image-wrapper {
+        display: flex;
+        justify-content: center;
+    }
+ 
+    .image-wrapper img {
+        width: 300px;
+    }
+
+    @media (min-width: 880px) {
+        section {
+            display: grid;
+            grid-template-columns: 50% 50%;
+            justify-content: center;
+        }
+        .image-wrapper img {
+            object-fit: contain;
+            width: 500px;
+        }
+    }
+</style>

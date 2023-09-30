@@ -1,0 +1,72 @@
+---
+import BaseHead from "../../components/BaseHead.astro";
+const name = "false geometry"
+---
+<BaseHead title={name}/>
+<main id="main"></main>
+
+<script>
+    const main = document.querySelector<HTMLDivElement>('#main');
+    const bodyBounds = document.body.getBoundingClientRect();
+    if (main) {
+        main.style.height = String((bodyBounds.height * .8)) + 'px';
+    }
+
+    const colors: string[] = [ '#510B0A', '#BF4342', '#FF4136', '#FFC0CB', '#E6E6FA', '#ABAABB'];
+
+    let parentRect = main;
+    function generateWonkyClipPaths() {
+        const topLeft = `${getRandomOffet(15)}% ${getRandomOffet(12)}%`;
+        const topRight = `${getRandomOffet(15)}% ${97 - getRandomOffet(15)}%`;
+        const bottomRight =  `${97 - getRandomOffet(7)}% ${97 - getRandomOffet(7)}%`;
+        const bottomLeft =  `${97 - getRandomOffet(7)}% ${getRandomOffet(15)}%`;
+        return  `polygon(
+               ${topLeft}, ${topRight}, ${bottomRight}, ${bottomLeft}, ${topLeft}
+                )`;
+    }
+    const getRandomOffet = (offset: number) => { return Math.ceil(Math.random() * offset)};
+    if (main) {
+        while (colors.length > 0) {
+            const newRect = document.createElement('div');
+
+            newRect.classList.add('polygon');
+            const color = colors.pop();
+            if (color) newRect.style.backgroundColor = color;
+            newRect.style.clipPath = generateWonkyClipPaths();
+            if (parentRect) parentRect.appendChild(newRect);
+            parentRect = newRect;
+        }
+    }
+    function shufflePolygons() {
+        const polygons = document.querySelectorAll<HTMLDivElement>('.polygon');
+        Array.from(polygons).forEach(p => {
+            p.style.clipPath = generateWonkyClipPaths();
+            p.style.transition = `${500 + getRandomOffet(1000)}ms`
+            p.style.transitionDelay = getRandomOffet(100) + 'ms';
+        })
+    }
+    setInterval(() => {
+        shufflePolygons()
+    }, 1500);
+</script>
+
+<style>
+    html,body {
+        margin: 0;
+        height: 100%;
+    }
+    #main {
+        background-color: #F2F4F4;
+        position: relative;
+        padding: 10px;
+        height: 100%;
+    }
+    :global(.polygon) {
+        position: absolute;
+        top: 50%;
+        height: 75%;
+        width: 75%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+</style>

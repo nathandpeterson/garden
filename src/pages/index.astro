@@ -1,16 +1,58 @@
 ---
+    import BaseHead from '../components/BaseHead.astro';
+    import SimpleCardGroup from '../components/SimpleCardGroup.astro';
 
+    const artCards = [
+        { href: '/art/false-geometry', text: 'False Geometry' },
+    ]
+    const bookCards = [
+        { href: '/books/if-on-a-winters-night', text: "If on a Winter's Night" },
+    ]
+    const miscCards = [
+        { href: '/about', text: 'About' }
+    ]
 ---
 
 <html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>The Garden of Silas Flannery</title>
-	</head>
-	<body>
-		<h1>The Garden of Silas Flannery</h1>
-	</body>
+    <BaseHead title="A Digital Garden"/>
+	
+	<main>
+		<section class="center">
+			<h1>a digital garden</h1>
+		</section>
+
+		<hr />
+
+		<span class="center">art</span>
+   
+        <SimpleCardGroup backgroundColor='lightsteelblue' cards={artCards} />
+
+		<span class="center">books</span>
+
+		<SimpleCardGroup backgroundColor='burlywood' cards={bookCards}/>
+
+        <SimpleCardGroup backgroundColor='pink' cards={miscCards}/>
+</main>
+
+
 </html>
+
+<style>
+    :global(*) {
+        font-family: Arial, Helvetica, sans-serif;
+    }
+    main {
+        height: 100vh;
+    }
+    h1 {
+        text-align: center;
+        color: gray;
+    }
+    h1 {
+        margin-top: 20px;
+    }
+    .center {
+        display: flex;
+        justify-content: center;
+    }
+</style>

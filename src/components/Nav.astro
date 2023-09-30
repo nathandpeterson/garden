@@ -1,0 +1,37 @@
+<div class="nav">
+    <a href="/"><button>⮐</button></a>
+    <div class="subheader">A Digital Garden</div>
+</div>
+<hr />
+
+<style>
+     .nav {
+        position: relative;
+        height: 40px;
+    }
+    a button {
+        cursor: pointer;
+        position: absolute;
+        top: 50%;
+        left: 10px;
+        transform: translateY(-50%);
+        border: none;
+        background: none;
+        padding: 3px;
+    }
+    a button:hover {
+        background: magenta;
+        color: white;
+        transition: .5s;
+        border-radius: 5px;
+    }
+    .nav a:visited {
+        color: black;
+    }
+    .subheader {
+        position: absolute;
+        top: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+</style>

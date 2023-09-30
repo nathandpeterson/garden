@@ -1,0 +1,39 @@
+---
+import { MarkdownLayoutProps } from 'astro';
+import Nav from '../components/Nav.astro';
+import BaseHead from '../components/BaseHead.astro';
+type Props =  MarkdownLayoutProps<{
+    imageAlt: string;
+    imageSrc: string;
+    title: string;
+}> 
+const { frontmatter: { imageAlt, imageSrc, title } } = Astro.props;
+---
+<html>
+    <BaseHead title={title}/>
+    <body>
+        <Nav />
+        <img src= {imageSrc} alt={imageAlt}/>
+        <section>
+            <slot />
+        </section>
+
+    </body>
+</html>
+
+<style>
+    section {
+        padding: 0 15px;
+
+        hyphens: auto;
+    }
+    @media (min-width:600px) {
+        section {
+            padding: 0 20%;
+        }
+    }
+
+    .back {
+        color: magenta;
+    }
+</style>
