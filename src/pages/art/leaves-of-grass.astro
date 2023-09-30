@@ -1,0 +1,168 @@
+---
+import BaseHead from "../../components/BaseHead.astro";
+---
+
+<BaseHead title="Leaves of Grass"/>
+<body>
+    <main id="main">
+        leaves of grass
+    </main>
+    <section id="controls" class="hidden">
+        <button id="close-button">X</button>
+        <button id="play-button" class="control-el">▲</button>
+        <button id="pause-button" class="control-el">II</button>
+        <button id="clear-button" class="control-el">X</button>
+        <label class="control-el">spawn</label>
+        <input type="range" min="1000" max="2000" value="1500" id="spawn-slider" orient="vertical" class="control-el"></input>
+        <label class="control-el">speed</label>
+        <input type="range" min="10" max="2000" value="1000" id="speed-slider" orient="vertical" class="control-el"></input>
+    </section>
+    <script>
+        const bladeSpeedTag = document.createElement('style');
+        document.head.append(bladeSpeedTag);
+        const getRandomOffet = (offset) => { return Math.ceil(Math.random() * offset)};
+        const getColor = () => {
+            return `rgb(0, ${100 + getRandomOffet(60)}, ${30 + getRandomOffet(30)})`
+        }
+        function setBladeGrowthSpeed (newSpeedinMs) {
+            bladeSpeedTag.innerHTML = `.block { transition: ${newSpeedinMs}ms top; }`;
+        }
+        function main() {
+            let interval = 500;
+            const unmountCallbacks = [];
+            const main = document.getElementById('main');
+            if (!main) return;
+            setBladeGrowthSpeed(1000);
+            const play = document.getElementById('play-button');
+            play.addEventListener('click', () => {
+                unmountCallbacks.push(spawnGrass(main, interval));
+            });
+            const pause = document.getElementById('pause-button')
+            pause.addEventListener('click', () => {
+                unmountCallbacks.forEach(cb => cb());
+            });
+            const clear = document.getElementById('clear-button');
+            clear.addEventListener('click', () => {
+                const blades = document.querySelectorAll('.block');
+                blades.forEach(b => b.classList.add('shrink'));
+                setTimeout(() => {
+                    blades.forEach(b => b.remove());
+                }, 200);
+            });
+            const speedSlider = document.getElementById('speed-slider');
+            speedSlider.addEventListener('mouseup', function(e) {
+                setBladeGrowthSpeed(2100 - this.value);
+            });
+            const spawnSlider = document.getElementById('spawn-slider')
+            spawnSlider.addEventListener('mouseup', function(e) {
+                // as user increases slider, decrease interval. but never decrease to zero
+                interval = 2050 - this.value;
+            });
+            unmountCallbacks.push(spawnGrass(main, interval));
+            const closeButton = document.getElementById('close-button');
+            closeButton.addEventListener('click', () => {
+                const controls = document.getElementById('controls');
+                controls.classList.toggle('hidden')
+            })
+        }
+        function spawnGrass(parentNode, interval) {
+            let handle = setInterval(() => {
+                const bounds = parentNode.getBoundingClientRect();
+                const b = document.createElement('div');
+                b.classList.add('block');
+                b.style.width = `${getRandomOffet(5) + 4}%`;
+                b.style.height = `5%`;
+                b.style.top = `95%`;
+                b.style.left = `${getRandomOffet(100) - 10}%`;
+                b.style.backgroundColor = getColor();
+                parentNode.appendChild(b);
+                animateElement(b);
+            }, interval);
+            return () => clearInterval(handle);
+        }
+        function animateElement (el) {
+            const bounds = el.getBoundingClientRect();
+            el.style.height = `100%`;
+            el.style.top = `0`;
+            el.style.backgroundColor = getColor();
+            el.style.clipPath =  `ellipse(15% ${96 + getRandomOffet(4)}% at bottom)`;
+        }
+        main();
+    </script>
+</body>
+
+<style is:global>
+    body {
+        margin: 0;
+        display: flex;
+        height: 100%;
+        background-color: #ADD8E6;
+    }
+    #main {
+        width: 90%;
+        height: 100%;
+        flex-grow: 1;
+        padding: 10px;
+    }
+    #controls {
+        /* mobile */
+        display: none; 
+        width: 10%;
+        height: 100%;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        background-color: lightgray;
+    }
+    @media (min-width:961px)  { 
+        #controls {
+            display: flex;
+        }
+    }
+    #controls.hidden {
+        clip-path: ellipse(28px 28px at 90% 2%);
+        transition: 1s all;
+        background: #FFFF8F;
+    }
+    #controls.hidden #close-button {
+        color: #FFFF8F;
+    }
+    #controls.hidden > *:not(:first-child) {
+        visibility: hidden;
+    }
+    label {
+        color: white;
+        margin: 15px 0;
+        text-transform: uppercase;
+    }
+    .control-el {
+        appearance: slider-vertical;
+        margin: 20px 0;
+        cursor: pointer;
+        width: 40px;
+    }
+    #close-button {
+        position: absolute;
+        top: 5px;
+        right: 0;
+        margin: 0;
+        border: none;
+        background: none;
+        cursor: pointer;
+        color: white;
+        padding: 5px 10px;
+    }
+    #close-button:hover {
+        transform: scale(1.2);
+        transition: .5s all;
+    }
+    .block {
+        position: absolute;
+    }
+    .block.shrink {
+        height: 0 !important;
+        top: 100% !important;
+        transition: all .2s;
+    }
+</style>
