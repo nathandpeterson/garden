@@ -1,0 +1,114 @@
+---
+import BaseHead from "../../components/BaseHead.astro";
+---
+
+<BaseHead title="Floating things" />
+
+<body> <main id="main"></main></body>
+
+<script>
+    const colors = [
+        "#554757",
+        "#5D4E60",
+        "#A88FAC",
+        "#D4B2D8",
+        "#EFCEFA",
+        "#111D4A",
+        "#F4743B",
+        "#70AE6E",
+        "#6689A1",
+        "#F6F740",
+        "#9C3848",
+        "#A69658",
+        "#103900",
+        "#8B94A3",
+        "#F4B942",
+    ];
+    const getRandomOffet = (offset: number) => {
+        return Math.ceil(Math.random() * offset);
+    };
+    function createThing() {
+        const main = document.getElementById("main");
+        if (!main) return;
+        const thing = document.createElement("div");
+        thing.className = "thing";
+        document.body.appendChild(thing);
+    }
+    function createSmallThings() {
+        const t = document.querySelector(".thing");
+        const theseColors = Array.from(colors);
+        let smallThings: HTMLDivElement[] = [];
+        if (!t) return [];
+        while (theseColors.length) {
+            const small = document.createElement("div");
+            small.classList.add("small-thing");
+            small.style.backgroundColor = theseColors.pop() || 'gray';
+            t.append(small);
+            smallThings = [...smallThings, small];
+        }
+        return smallThings;
+    }
+    function animateThings(things: HTMLDivElement[]) {
+        if (!things[0]?.parentNode) {
+            return;
+        }
+        const parent = things[0].parentNode as HTMLDivElement;
+        const parentRect = parent.getBoundingClientRect();
+    
+        things.forEach((thing) => {
+            const topOffset =
+                getRandomOffet(parentRect.height) - parentRect.top + "px";
+            const leftOffset =
+                getRandomOffet(parentRect.width) - parentRect.left + "px";
+            thing.style.top = topOffset;
+            thing.style.left = leftOffset;
+            thing.style.backgroundColor = colors[getRandomOffet(colors.length)] || 'gray';
+            thing.style.height = `${getRandomOffet(20) + 5}%`;
+            thing.style.width = `${getRandomOffet(20) + 5}%`;
+        });
+    }
+    function runAnimateThings(things: HTMLDivElement[]) {
+        setInterval(() => {
+            animateThings(things);
+        }, 1500);
+    }
+    createThing();
+    const smallThings: HTMLDivElement[] = createSmallThings();
+    runAnimateThings(smallThings);
+</script>
+
+<style>
+    :global(#main) {
+        background-color: #f2f4f4;
+        width: 100vw;
+        height: 100vh;
+        position: relative;
+        padding: 10px;
+    }
+    :global(.thing) {
+        position: absolute;
+        height: 85%;
+        width: 85%;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: #eff2f1;
+        transition: 1s all;
+        border-radius: 5px;
+        overflow: hidden;
+    }
+    :global(.small-thing) {
+        position: absolute;
+        height: 15%;
+        width: 15%;
+        top: 0;
+        left: 0;
+        background-color: #eff2f1;
+        transition: all 1s ease;
+        mix-blend-mode: difference;
+    }
+    :global(.small-thing:hover) {
+        mix-blend-mode: normal;
+        transform: scale(2);
+    }
+</style>
