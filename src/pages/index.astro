@@ -7,9 +7,9 @@
         { href: '/art/floating-things', text: 'Floating Things' },
         { href: '/art/leaves-of-grass', text: 'Leaves of Grass'}
     ]
-    const bookCards = [
-        { href: '/books/if-on-a-winters-night', text: "If on a Winter's Night" },
-    ]
+    const books = await Astro.glob('../pages/books/*.md')
+    const bookCards = books.map(post => ({ href: post.url, text: post.frontmatter.title }))
+
     const miscCards = [
         { href: '/about', text: 'About' }
     ]
