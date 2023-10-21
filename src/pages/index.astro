@@ -3,9 +3,10 @@
     import SimpleCardGroup from '../components/SimpleCardGroup.astro';
 
     const artCards = [
-        { href: '/art/false-geometry', text: 'False Geometry' },
+        { href: '/art/iridescent-vectors', text: 'Iridescent Vectors' },
         { href: '/art/floating-things', text: 'Floating Things' },
-        { href: '/art/leaves-of-grass', text: 'Leaves of Grass'}
+        { href: '/art/leaves-of-grass', text: 'Leaves of Grass'},
+        { href: '/art/false-geometry', text: 'False Geometry' },
     ]
     const books = await Astro.glob('../pages/books/*.md')
     const bookCards = books.map(post => ({ href: post.url, text: post.frontmatter.title }))

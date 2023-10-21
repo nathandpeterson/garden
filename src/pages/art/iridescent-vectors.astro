@@ -1,0 +1,117 @@
+---
+import BaseHead from "../../components/BaseHead.astro";
+---
+<BaseHead title="Iridescent Vectors"/>
+
+<body>
+    <canvas id="main"></canvas>
+</body>
+
+<script>
+    // much here adapted from this tutorial https://www.youtube.com/watch?v=uCH1ta5OUHw
+    let ctx;
+    let animationHandler: number;
+    const mouse: { x: number, y: number, isProximate: (x: number, y: number) => boolean } = {
+        x: 0,
+        y: 0,
+        isProximate: (x, y) => {
+            return Math.abs(mouse.x - x) < 50 && Math.abs(mouse.y - y) < 50
+        }
+    };
+    window.addEventListener('mousemove', (e) => {
+        mouse.x = e.x;
+        mouse.y = e.y;
+    });
+    class FlowContext {
+        canvas: HTMLCanvasElement;
+        ctx: CanvasRenderingContext2D;
+        x: number;
+        y: number;
+        width: number;
+        height: number;
+        lineWidth: number;
+        cellSize: number;
+        gradient: any;
+        radius: number;
+        vr: number;
+        constructor(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) {
+            this.canvas = canvas;
+            this.ctx = ctx;         
+            this.x = 0;
+            this.y = 0;
+            this.width = window.innerWidth;
+            this.height = window.innerHeight;
+            this.lineWidth = 1;
+            this.ctx.lineWidth = this.lineWidth;
+            this.cellSize = 15;
+            this.gradient;
+            this.#createGradient();
+            ctx.strokeStyle = this.gradient;
+            this.#initializeResizeListener();
+            this.radius = 0;
+            // vr is an offset to incrementally shift the radius and create movement
+            this.vr = 0.05;
+        }
+        #createGradient = () => {
+            this.gradient = this.ctx.createLinearGradient(0, 0, this.width, this.height)
+            this.gradient.addColorStop('.1', '#fc466b')
+            this.gradient.addColorStop('.2', '#a846fc')
+            this.gradient.addColorStop('.4', '#fcda46')
+            this.gradient.addColorStop('.6', '#5cfc46')
+            this.gradient.addColorStop('.7', '#92fc46')
+            this.gradient.addColorStop('.9', '#4657fc')
+        }
+        #initializeResizeListener() {
+            window.addEventListener('resize', () => {
+                cancelAnimationFrame(animationHandler)
+                this.canvas.width = window.innerWidth;
+                this.width = window.innerWidth;
+                this.canvas.height = window.innerHeight;
+                this.height = window.innerHeight;
+                const flowContext = new FlowContext(this.canvas, this.ctx);
+                flowContext.animate();
+            });
+        }
+        animate = () => {
+            this.ctx.clearRect(0,0, this.width, this.height);
+            this.ctx.fillStyle = "black";
+            this.ctx.fillRect(0, 0, this.width, this.height);
+            this.radius += this.vr;
+            // prevent radius from exceeding +-5 to create looping effect
+            if (this.radius < -5 || this.radius > 5) this.radius = Math.abs(this.radius)
+            let multiplier = 0.001;
+            for (let y = 0; y < this.height; y+= this.cellSize) {
+                for (let x = 0; x < this.width; x+= this.cellSize) {
+                    if (mouse.isProximate(x, y)) {
+                        multiplier = .002
+                    }
+                    const angle = (Math.cos(x * multiplier) + Math.sin(y * multiplier)) * this.radius;
+                    this.#drawLine(x, y, angle);
+                }
+            }
+            animationHandler = requestAnimationFrame(this.animate);
+        }
+        #drawLine(x: number, y: number, angle: number) {
+            this.ctx.beginPath();
+            this.ctx.moveTo(x, y);
+            let multiplier = 20;
+            if (mouse.isProximate(x,y)) {
+                multiplier = 60;
+            }
+            this.ctx.lineTo(x + Math.cos(angle) * multiplier, y + Math.sin(angle) * multiplier)
+            this.ctx.stroke()
+        }
+    }
+
+    function init () {
+        const canvas = document.querySelector<HTMLCanvasElement>("canvas");
+        canvas!.height = window.innerHeight;
+        canvas!.width = window.innerWidth;
+        ctx = canvas!.getContext("2d");
+        if (!ctx) return;
+        const flowContext = new FlowContext(canvas!, ctx);
+        flowContext.animate();
+    }
+    init();
+</script>
+
