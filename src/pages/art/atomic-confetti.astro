@@ -1,0 +1,136 @@
+---
+import BaseHead from "../../components/BaseHead.astro";
+---
+<BaseHead title="Atomic Confetti"/>
+
+<body>
+    <canvas id="main"></canvas>
+</body>
+
+<script>
+    type Point = { x: number, y: number, color: string, radius: number };
+    type Grid = Point[];
+
+    class Dot {
+        x: number;
+        y: number;
+        radius: number;
+        color: string;
+        ctx: CanvasRenderingContext2D;
+       
+        constructor(ctx: CanvasRenderingContext2D, x: number, y: number, radius: number, color: string) {
+            this.x = x;
+            this.y = y;
+            this.radius = radius;
+            this.color = color;
+            this.ctx = ctx;
+            this.#draw(radius);
+        }
+        #draw (radius: number) {
+            this.ctx.fillStyle = this.color;
+            this.ctx.beginPath();
+            this.ctx.arc(this.x, this.y, radius, Math.PI * 2, 0);
+            this.ctx.fill();
+        }
+    }
+
+    class Matrix {
+        ctx: CanvasRenderingContext2D;
+        height: number;
+        width: number;
+        grids: Grid[];
+        gridXOffsets: number[];
+        constructor(ctx: CanvasRenderingContext2D) {
+            this.ctx = ctx;
+            this.height = window.innerHeight;
+            this.width = window.innerWidth;
+            this.gridXOffsets = [];
+            const grids: Grid[] = [25, 45, 35].map(createGrid);
+            this.grids = grids;
+        }
+        animate = () => {
+            this.#moveGridXOffsets();
+            this.ctx.clearRect(0,0, this.width, this.height);
+            this.grids.forEach((points, i) => {
+                this.gridXOffsets.push(0);
+                points.forEach(point => {
+                    const x = this.#getX(point.x, i);
+                    new Dot(this.ctx, x, point.y, point.radius, point.color)
+                })
+            });
+            requestAnimationFrame(this.animate);
+        }
+        #moveGridXOffsets = () => {
+            // each nested grid advances faster, depending on its index
+            this.gridXOffsets = this.gridXOffsets.map((offset, i) => {
+                if (offset > this.width) {
+                    return 0
+                }
+                return offset += i + 1;
+            });
+        }
+        #getX = (x: number, depth: number) => {
+            const offset = this.gridXOffsets[depth]!;
+            const offsetX = offset + x;
+            if (offsetX >= this.width) {
+                return Math.abs(this.width - offsetX);
+            }
+            return offsetX;
+        }
+    }
+    
+    function setDimensions() {
+        const canvas = document.querySelector<HTMLCanvasElement>('#main');
+        const ctx = canvas!.getContext('2d');
+        if (!canvas || !ctx) return;
+        canvas.style.width = window.innerWidth + "px";
+        canvas.style.height = window.innerHeight + "px";
+
+        // Set actual size in memory (scaled to account for extra pixel density).
+        const scale = window.devicePixelRatio; // <--- Change to 1 on retina screens to see blurry canvas.
+        canvas.width = window.innerWidth * scale;
+        canvas.height = window.innerHeight * scale;
+
+        // Normalize coordinate system to use css pixels.
+        ctx.scale(scale, scale);
+    }
+
+    function createGrid(cellSize: number): Grid {
+        let coords: Point[] = [];
+        for (let x = 0; x < window.innerWidth; x += cellSize) {
+            for (let y = 0; y < window.innerHeight; y += cellSize) {
+                // reduce density of circles for a less crowded effect
+                if (Math.random() > .75) {
+                    continue;
+                }
+                coords.push({ x, y, color: getRandomColor(), radius: Math.random() * 15 })
+            }
+        }
+        return coords;
+    }
+
+    function getRandomColor() {
+        return `rgb(${Math.random() * 255}, ${Math.random() * 255}, ${Math.random() * 255})`
+    }
+
+    function init() {
+        setDimensions();
+        const canvas = document.querySelector<HTMLCanvasElement>('#main');
+        const ctx = canvas!.getContext('2d');
+        if (!canvas || !ctx) return;
+        const matrix = new Matrix(ctx);
+        matrix.animate();
+    }
+    init();
+    function debounce(cb: () => void, timeout = 300) {
+       let timer: number;
+       return () => {
+            clearTimeout(timer);
+            timer = setTimeout(() => {
+                cb();
+        }, timeout);
+       }
+    }
+    const debouncedInit = debounce(init);
+    window.addEventListener('resize', debouncedInit)
+</script>
