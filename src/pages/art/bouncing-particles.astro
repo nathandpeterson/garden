@@ -1,0 +1,106 @@
+---
+import BaseHead from "../../components/BaseHead.astro";
+---
+<BaseHead title="Bouncing Particles"/>
+
+<body>
+    <canvas id="main"></canvas>
+</body>
+
+<script>  
+    type ParticleProps = {
+        x: number;
+        y: number;
+        directionX: number;
+        directionY: number;
+        size: number;
+        color: string;
+        ctx: CanvasRenderingContext2D;
+        canvas: HTMLCanvasElement;
+    }
+    class Particle {
+        x: number;
+        y: number;
+        directionX: number;
+        directionY: number;
+        size: number;
+        color: string;
+        canvas: HTMLCanvasElement;
+        ctx: CanvasRenderingContext2D;
+        constructor(props: ParticleProps) {
+            this.x = props.x;
+            this.y = props.y;
+            this.directionX = props.directionX;
+            this.directionY = props.directionY;
+            this.size = props.size;
+            this.color = props.color;
+            this.ctx = props.ctx;
+            this.canvas = props.canvas;
+        }
+        draw() {
+            this.ctx.beginPath();
+            this.ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2, false);
+            this.ctx.fillStyle = this.color;
+            this.ctx.fill();
+        }
+        update() {
+            if (this.x + this.size > this.canvas.width || this.x - this.size < 0) {
+                this.directionX = -this.directionX;
+            }
+            if (this.y + this.size > this.canvas.height  || this.y - this.size < 0) {
+                this.directionY = -this.directionY
+            }
+            this.x += this.directionX;
+            this.y += this.directionY;
+            this.draw();
+        }
+    }
+    let particles: Particle[] = [];
+    init();
+    function init() {
+        const canvas = document.querySelector<HTMLCanvasElement>('#main');
+        const ctx = canvas?.getContext('2d');
+        if (!canvas || !ctx) {
+            return;
+        }
+
+        const scale = window.devicePixelRatio; // <--- Change to 1 on retina screens to see blurry canvas.
+        canvas.width = window.innerWidth * scale;
+        canvas.height = window.innerHeight * scale;
+
+        const count = 100;
+        for (let i = 0; i <= count; i++) {
+            let size = Math.random() * 65 + 10;
+            let x = Math.random() * (canvas.width - size * 2 );
+            let y = Math.random() * (canvas.height - size * 2);
+            let directionX = (Math.random() * 1.8) - .6;
+            let directionY = (Math.random() * 1.8) - .6;
+            let color = `rgb(${Math.floor(Math.random() * 255)}, 140, ${Math.random() * 285 - 120})`
+            const particle = new Particle({ canvas, color, ctx, directionX, directionY, size, x, y });
+            particles.push(particle);
+        }
+        animate(ctx)
+    }
+  
+    function animate(ctx: CanvasRenderingContext2D){
+        requestAnimationFrame(() => animate(ctx));
+        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+        particles.forEach(particle => particle.update());
+    }
+
+</script>
+
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+       
+    }
+    #main {
+        position: absolute;
+        height: 100%;
+        width: 100%;
+        background: linear-gradient(aqua, yellow);
+    }
+</style>
